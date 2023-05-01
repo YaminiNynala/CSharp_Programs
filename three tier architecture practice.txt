@@ -1,0 +1,128 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using BusinessLogicLayer;
+
+namespace ThreeTierArchitecturePractice
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            LogicLayer.ReadAllUsers();
+            Console.ReadKey();
+        }
+    }
+}
+
+
+using DataAccessLayer;
+using DTOLayer;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace BusinessLogicLayer
+{
+    public class LogicLayer
+    {
+        public static void ReadAllUsers()
+        {
+            try
+            {
+
+                List<ClassesLayer> lstusers = getDataLayer.GetAllUsers();
+
+                foreach (var user in lstusers)
+                {
+                    Console.WriteLine("#######################################");
+
+                    Console.WriteLine($"User ID  {user.id} ");
+                    Console.WriteLine($"User Name  {user.name} ");
+                    Console.WriteLine($"User Email  {user.email} ");
+                    Console.WriteLine($"User Password  {user.password} ");
+                    Console.WriteLine($"User Status  {user.status} ");
+                    Console.WriteLine("#######################################");
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+        }
+    }
+}
+
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace DTOLayer
+{
+    public class ClassesLayer
+    {
+        public int id;
+        public string name;
+        public string email;
+        public string password;
+        public bool status; 
+    }
+}
+
+
+using DTOLayer;
+using System;
+using System.Collections.Generic;
+using System.Data.Common;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace DataAccessLayer
+{
+    public class getDataLayer
+    {
+        public static List<ClassesLayer> GetAllUsers()
+        {
+            SqlConnection conn = new SqlConnection("Data Source = 192.168.1.9; Database = Training2022; User Id = tuser; Password = tecra1@3");
+            List<ClassesLayer> lstusers = new List<ClassesLayer>();
+            try
+            {
+                conn.Open();
+                string SelectQuery = "Select * from _txtFileUser";
+                SqlCommand cmd = new SqlCommand(SelectQuery, conn);
+                SqlDataReader reader = cmd.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    foreach (DbDataRecord row in reader)
+                    {
+                        ClassesLayer UserObj = new ClassesLayer();
+                        UserObj.id = row.GetInt32(0);
+                        UserObj.name = row.GetString(1);
+                        UserObj.email = row.GetString(2);
+                        UserObj.password = row.GetString(3);
+                        UserObj.status = row.GetBoolean(4);
+
+                        lstusers.Add(UserObj);
+                    }
+                }
+                conn.Close();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+            return lstusers;
+        }
+
+    }
+}
